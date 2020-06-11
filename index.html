@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Player</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
+<script src="jquery-1.10.2.min.js"></script>   
+</head>
+<body>
+    <div class="trail">
+        <div class="pointer pointer1"></div>
+        <div class="pointer pointer2"></div>
+        <div class="pointer pointer3"></div>
+        <div class="pointer pointer4"></div>
+        <div class="pointer pointer5"></div>
+    </div>
+    
+    <div id="bg">
+        <div id="dim"></div>
+        <img src="img1.jpg" alt="background">
+    </div>
+    
+    <div id="main">
+        <div id="image">
+            <img src="img1.jpg" alt="album art">
+        </div>
+        
+        <div id="player">
+            <div id="songTitle">Demo</div>
+            <div id="btns">
+                <button id="pre" onclick="pre()"><img src="previous.png" alt="prev"></button>
+                <button id="play"><img id="play_img" src="play.png" alt="play"></button>
+                <button id="next" onclick="next()"><img src="next.png" alt="next"></button>
+            </div>
+            <input id="range" class="level" type="range" value="0" min="0">
+        </div>
+    </div>
+    
+    
+    
+    <!-- script -->
+    <script>
+        var songs = ["lukrembo - onion.mp3","lukrembo - bread.mp3","Otis McDonald - Not For Nothing.mp3","Joey Bada$$ Oldschool type beat.mp3","lukrembo - empty.mp3"];
+        var poster = ["img1.jpg","img2.jpg","img3.jpg","img4.png","img5.jpg"];
+        
+        var songTitle = document.getElementById("songTitle");
+        var fillBar = document.getElementById("fill");
+        
+        var song = new Audio();
+        var currentSong = 0;  
+        let play_btn = document.querySelector("#play");
+        let prev_btn = document.querySelector("#pre");
+        let next_btn = document.querySelector("#next");
+        let range = document.querySelector("#range");
+        let play_img = document.querySelector("#play_img")
+        let total_time = 0;
+        let currentTime = 0;
+        let isPlaying = false;
+        
+        window.onload = playSong;  
+        
+        function playSong(){
+            song.src = songs[currentSong];
+            
+            songTitle.textContent = songs[currentSong];
+            
+            song.play();
+           
+            
+            play_btn.addEventListener('click',function(){
+                if (!isPlaying){
+                    song.play();
+                    isPlaying = true;
+                    total_time = song.duration;
+                    range.max = total_time;
+                    play_img.src = "pause.png";
+                }
+                else {
+                    song.pause();
+                    isPlaying = false;
+                    play_img.src = "play.png";
+                }
+                song.addEventListener('ended',function(){
+                    song.currentTime = 0
+                    song.pause();
+                    isPlaying = false;
+                    range.value = 0;
+                    play_img.src = "play.png";
+                })
+                
+                song.addEventListener('timeupdate',function(){
+                    range.value = song.currentTime;
+                })
+                
+                range.addEventListener('change',function(){
+                    song.currentTime = range.value;
+                })
+
+            })
+        }
+        
+        function playOrPauseSong(){
+            
+            if(song.paused){
+                song.play();
+                $("#play img").attr("src","pause.png");
+            }
+            else {
+                song.paused();
+                $("#play img").attr("src","play.png");
+            }
+        }
+        
+        song.addEventListener('timeupdate',function(){
+           var position = song.currentTime / song.duration;
+            
+           fillBar.style.width = position * 100 + '%';
+        });
+        
+        function next(){
+            currentSong++;
+            if(currentSong > 4){
+                currentSong = 0;
+            }
+            playSong();
+            $("#play img").attr("src","pause.png");
+            $("#image img").attr("src",poster[currentSong]);
+            $("#bg img").attr("src",poster[currentSong]);
+        }
+        
+        function pre(){
+            currentSong--;
+            if(currentSong < 0){
+                currentSong = 0;
+            }
+            playSong();
+            $("#play img").attr("src","pause.png");
+            $("#image img").attr("src",poster[currentSong]);
+            $("#bg img").attr("src",poster[currentSong]);
+        }
+        
+        
+        /* trail on mousemove */
+        $(document).mousemove(function(e){
+            $('.pointer').css({left:e.pageX, top:e.pageY});
+        })
+    </script>
+</body>
+</html>
